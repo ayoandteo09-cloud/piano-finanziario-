@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piano finanziario modificabile</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --shadow-md: 0 8px 24px rgba(0,0,0,.18);
+      --font-body: 'Satoshi', system-ui, sans-serif;
+    }
+    :root,[data-theme="light"] {
+      --bg: #f7f6f2;
+      --surface: #fbfbf9;
+      --surface-2: #f0ede8;
+      --text: #24211d;
+      --muted: #6f6c66;
+      --border: #d8d3cb;
+      --primary: #01696f;
+      --success: #4d7a2a;
+      --warn: #b57a00;
+      --danger: #a13544;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --surface: #1b1b1b;
+      --surface-2: #242424;
+      --text: #f3f1ec;
+      --muted: #b0aaa2;
+      --border: #33312d;
+      --primary: #4f98a3;
+      --success: #8abc64;
+      --warn: #efb54a;
+      --danger: #ec7484;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: var(--text-base);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-4) var(--space-12);
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+      flex-wrap: wrap;
+    }
+    h1 {
+      margin: 0;
+      font-size: var(--text-xl);
+      line-height: 1.1;
+    }
+    .sub { color: var(--muted); margin-top: var(--space-2); }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn.primary { background: var(--primary); color: white; border-color: transparent; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: var(--space-6);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+    .card h2 {
+      margin: 0 0 var(--space-4);
+      font-size: var(--text-lg);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th { color: var(--muted); font-size: var(--text-sm); }
+    input {
+      width: 100%;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 0.55rem;
+      padding: 0.65rem 0.75rem;
+      font: inherit;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.3rem 0.55rem;
+      border-radius: 999px;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+    .ok { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+    .mid { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+    .bad { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+    .metric {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+    .metric small { color: var(--muted); display:block; margin-bottom: .3rem; }
+    .metric strong { font-size: var(--text-lg); }
+    .hint {
+      margin-top: var(--space-6);
+      color: var(--muted);
+      font-size: var(--text-sm);
+    }
+    .full { grid-column: 1 / -1; }
+    @media (max-width: 860px) {
+      .grid, .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Piano finanziario 2026-2027</h1>
+        <div class="sub">Template modificabile da copiare in Notion o usare come pagina HTML autonoma.</div>
+      </div>
+      <button class="btn" id="themeBtn" aria-label="Cambia tema">Tema</button>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Obiettivi di risparmio</h2>
+        <table id="goalsTable">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Obiettivo (€)</th>
+              <th>Attuale (€)</th>
+              <th>Stato</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-label="Casa">
+              <td>Casa</td>
+              <td><input type="number" value="13000"></td>
+              <td><input type="number" value="3000"></td>
+              <td class="status"></td>
+            </tr>
+            <tr data-label="Fondo emergenza">
+              <td>Fondo emergenza</td>
+              <td><input type="number" value="2000"></td>
+              <td><input type="number" value="290"></td>
+              <td class="status"></td>
+            </tr>
+            <tr data-label="Vacanza agosto">
+              <td>Vacanza agosto</td>
+              <td><input type="number" value="600"></td>
+              <td><input type="number" value="100"></td>
+              <td class="status"></td>
+            </tr>
+            <tr data-label="Assicurazione auto">
+              <td>Assicurazione auto</td>
+              <td><input type="number" value="500"></td>
+              <td><input type="number" value="0"></td>
+              <td class="status"></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Riepilogo automatico</h2>
+        <div class="summary">
+          <div class="metric"><small>Totale disponibile</small><strong id="totalCurrent">0 €</strong></div>
+          <div class="metric"><small>Totale obiettivi</small><strong id="totalGoal">0 €</strong></div>
+          <div class="metric"><small>Totale mancante</small><strong id="totalMissing">0 €</strong></div>
+          <div class="metric"><small>Casa accumulata col piano</small><strong id="houseFuture">0 €</strong></div>
+        </div>
+        <div class="hint">Modifica i numeri nella tabella e il riepilogo si aggiorna da solo.</div>
+      </section>
+
+      <section class="card full">
+        <h2>Piano mensile dettagliato</h2>
+        <table id="monthlyTable">
+          <thead>
+            <tr>
+              <th>Mese</th>
+              <th>Budget (€)</th>
+              <th>Casa (€)</th>
+              <th>Emergenza (€)</th>
+              <th>Vacanza (€)</th>
+              <th>Assic. (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Giugno</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="100"></td><td><input type="number" value="0"></td></tr>
+            <tr><td>Luglio</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="100"></td><td><input type="number" value="0"></td></tr>
+            <tr><td>Agosto</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="100"></td><td><input type="number" value="0"></td></tr>
+            <tr><td>Settembre</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="0"></td><td><input type="number" value="100"></td></tr>
+            <tr><td>Ottobre</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="0"></td><td><input type="number" value="100"></td></tr>
+            <tr><td>Novembre</td><td><input type="number" value="880"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="0"></td><td><input type="number" value="100"></td></tr>
+            <tr><td>Dicembre</td><td><input type="number" value="2300"></td><td><input type="number" value="1900"></td><td><input type="number" value="200"></td><td><input type="number" value="0"></td><td><input type="number" value="200"></td></tr>
+            <tr><td>Gennaio</td><td><input type="number" value="780"></td><td><input type="number" value="600"></td><td><input type="number" value="180"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td></tr>
+            <tr><td>Febbraio</td><td><input type="number" value="850"></td><td><input type="number" value="600"></td><td><input type="number" value="250"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const fmt = v => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v || 0);
+
+    function updateGoals() {
+      const rows = [...document.querySelectorAll('#goalsTable tbody tr')];
+      let totalGoal = 0, totalCurrent = 0;
+      rows.forEach(row => {
+        const goal = Number(row.cells[1].querySelector('input').value) || 0;
+        const current = Number(row.cells[2].querySelector('input').value) || 0;
+        totalGoal += goal;
+        totalCurrent += current;
+        const pct = goal > 0 ? Math.round((current / goal) * 100) : 0;
+        let cls = 'bad';
+        if (pct >= 50) cls = 'ok'; else if (pct >= 20) cls = 'mid';
+        row.querySelector('.status').innerHTML = `<span class="pill ${cls}">${pct}%</span>`;
+      });
+      document.getElementById('totalGoal').textContent = fmt(totalGoal);
+      document.getElementById('totalCurrent').textContent = fmt(totalCurrent);
+      document.getElementById('totalMissing').textContent = fmt(Math.max(totalGoal - totalCurrent, 0));
+    }
+
+    function updateHouseFuture() {
+      const rows = [...document.querySelectorAll('#monthlyTable tbody tr')];
+      const futureHouse = rows.reduce((sum, row) => sum + (Number(row.cells[2].querySelector('input').value) || 0), 0);
+      document.getElementById('houseFuture').textContent = fmt(futureHouse);
+    }
+
+    document.querySelectorAll('input').forEach(i => i.addEventListener('input', () => {
+      updateGoals();
+      updateHouseFuture();
+    }));
+
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    updateGoals();
+    updateHouseFuture();
+  </script>
+</body>
+</html>
